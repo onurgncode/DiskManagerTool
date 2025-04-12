@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAcce
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntitesLayer", "Entites\EntitesLayer.csproj", "{4C0CC3FD-7969-49C3-AFBF-7C1253426650}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiskManagerToolConsole", "DiskManagerToolConsole\DiskManagerToolConsole.csproj", "{695CA565-6A24-4A4F-84F8-D825AF4C55E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiskYonetim", "DiskYonetim\DiskYonetim.csproj", "{3BD5F5BF-1E12-42C9-9395-853629EF6DE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{4C0CC3FD-7969-49C3-AFBF-7C1253426650}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C0CC3FD-7969-49C3-AFBF-7C1253426650}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C0CC3FD-7969-49C3-AFBF-7C1253426650}.Release|Any CPU.Build.0 = Release|Any CPU
-		{695CA565-6A24-4A4F-84F8-D825AF4C55E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{695CA565-6A24-4A4F-84F8-D825AF4C55E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{695CA565-6A24-4A4F-84F8-D825AF4C55E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{695CA565-6A24-4A4F-84F8-D825AF4C55E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BD5F5BF-1E12-42C9-9395-853629EF6DE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BD5F5BF-1E12-42C9-9395-853629EF6DE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BD5F5BF-1E12-42C9-9395-853629EF6DE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BD5F5BF-1E12-42C9-9395-853629EF6DE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
