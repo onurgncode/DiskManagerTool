@@ -20,35 +20,42 @@ namespace DiskYonetim.AppClass
             while (true)
             {
                 var mevcutDiskler = DriveInfo.GetDrives()
-                                             .Where(d => d.IsReady) 
+                                             .Where(d => d.IsReady)
                                              .Select(d => d.Name)
                                              .ToList();
 
                 // Yeni takılan diskleri bul
                 var yeniDiskler = mevcutDiskler.Except(oncekiDiskler).ToList();
-
                 foreach (var disk in yeniDiskler)
                 {
                     await DiskBilgisiYaz(disk);
                 }
 
+                // Çıkarılan diskleri bul
+                var cikarilanDiskler = oncekiDiskler.Except(mevcutDiskler).ToList();
+                foreach (var disk in cikarilanDiskler)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"UYARI: {disk} diski çıkartıldı!");
+                    Console.ResetColor();
+                }
+
+                // En son önceki disk listesini güncelle
                 oncekiDiskler = mevcutDiskler;
 
                 await Task.Delay(2000); // 2 saniyede bir kontrol et
-
-                // Furkan 
             }
         }
-        
+
         private static async Task DiskBilgisiYaz(string diskYolu)
         {
             await Task.Run(() =>
             {
-                
                 var disk = new DriveInfo(diskYolu);
-                int DiskSeriNo = Convert.ToInt32(disk.VolumeLabel);
+                string DiskSeriNo = disk.VolumeLabel;
                 string DiskModel = disk.RootDirectory.FullName;
                 long DiskBoyut = disk.TotalSize;
+
                 Disk diskolustur = new Disk()
                 {
                     DiskBoyut = DiskBoyut,
@@ -57,28 +64,26 @@ namespace DiskYonetim.AppClass
                     DiskTarih = DateTime.Now
                 };
 
-
-
                 string raw = $"{DiskSeriNo}-{DiskModel}-{DiskBoyut}";
-                string hash = SHA256Uret(raw,diskolustur);
+                string hash = SHA256Uret(raw, diskolustur);
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"Yeni disk takıldı: {DiskSeriNo} ({DiskModel}) | Boyut: {DiskBoyut / (1024 * 1024)} MB");
                 Console.WriteLine($"Disk Hash: {hash}");
+                Console.ResetColor();
             });
-            
         }
 
-        private static string SHA256Uret(string data,Disk disk)
+        private static string SHA256Uret(string data, Disk disk)
         {
             using (SHA256 sha = SHA256.Create())
             {
                 var hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(data));
                 return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-                // Yasir Bu kısmı veritabanına ekleyecek oluşturulacağını
-                // disk i DiskDb gönderecek
+
+                // Bu kısımda disk verisi veritabanına gönderilecekse, buraya ekleme yapılabilir.
+                // Örn: DiskDb.Add(disk);
             }
         }
     }
-
-//main
 }
