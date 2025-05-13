@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiskManagerTool", "DiskManagerTool\DiskManagerTool.csproj", "{8071F955-006E-46AF-AB45-F496FAD46298}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLayer", "DataAccessLayer\DataAccessLayer.csproj", "{65A81B50-E855-41B0-96DC-D262F2593236}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntitesLayer", "Entites\EntitesLayer.csproj", "{4C0CC3FD-7969-49C3-AFBF-7C1253426650}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiskYonetim", "DiskYonetim\DiskYonetim.csproj", "{3BD5F5BF-1E12-42C9-9395-853629EF6DE4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8071F955-006E-46AF-AB45-F496FAD46298}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8071F955-006E-46AF-AB45-F496FAD46298}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8071F955-006E-46AF-AB45-F496FAD46298}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8071F955-006E-46AF-AB45-F496FAD46298}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65A81B50-E855-41B0-96DC-D262F2593236}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65A81B50-E855-41B0-96DC-D262F2593236}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65A81B50-E855-41B0-96DC-D262F2593236}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65A81B50-E855-41B0-96DC-D262F2593236}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C0CC3FD-7969-49C3-AFBF-7C1253426650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C0CC3FD-7969-49C3-AFBF-7C1253426650}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C0CC3FD-7969-49C3-AFBF-7C1253426650}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C0CC3FD-7969-49C3-AFBF-7C1253426650}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BD5F5BF-1E12-42C9-9395-853629EF6DE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BD5F5BF-1E12-42C9-9395-853629EF6DE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BD5F5BF-1E12-42C9-9395-853629EF6DE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BD5F5BF-1E12-42C9-9395-853629EF6DE4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
