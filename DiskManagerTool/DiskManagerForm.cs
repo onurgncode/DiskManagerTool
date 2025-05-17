@@ -13,7 +13,6 @@ using EntitesLayer.Entity;
 
 namespace DiskManagerTool
 {
-
     public partial class DiskManagerForm : Form
     {
         private List<Disk> diskler = new List<Disk>();
@@ -70,144 +69,315 @@ namespace DiskManagerTool
 
         private void SetupDataGridView()
         {
-            // DataGridView sütunlarını tanımla
+            // DataGridView sütunlarını temizle
+            dgvDiskler.Columns.Clear();
             dgvDiskler.AutoGenerateColumns = false;
 
-            var colSeriNo = new DataGridViewTextBoxColumn
+            // Temel sütunları ekle
+            dgvDiskler.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colSeriNo",
                 HeaderText = "Seri No",
-                DataPropertyName = "DiskSeriNo"
-            };
+                DataPropertyName = "DiskSeriNo",
+                Width = 100
+            });
 
-            var colModel = new DataGridViewTextBoxColumn
+            dgvDiskler.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colModel",
                 HeaderText = "Disk Modeli",
-                DataPropertyName = "DiskModel"
-            };
+                DataPropertyName = "DiskModel",
+                Width = 120
+            });
 
-            var colBoyut = new DataGridViewTextBoxColumn
+            dgvDiskler.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colBoyut",
                 HeaderText = "Disk Boyutu (MB)",
-                DataPropertyName = "DiskBoyutMB"
-            };
+                DataPropertyName = "DiskBoyutMB",
+                Width = 100
+            });
 
-            var colTarih = new DataGridViewTextBoxColumn
+            dgvDiskler.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colTarih",
                 HeaderText = "Takılma Tarihi",
                 DataPropertyName = "DiskTarih",
+                Width = 150,
                 DefaultCellStyle = new DataGridViewCellStyle { Format = "dd.MM.yyyy HH:mm:ss" }
-            };
+            });
 
-            var colHash = new DataGridViewTextBoxColumn
+            dgvDiskler.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colHash",
                 HeaderText = "Hash Değeri",
-                DataPropertyName = "Hash"
-            };
+                DataPropertyName = "Hash",
+                Width = 150
+            });
 
-            // Erişim türü için ComboBox sütunu ekle
-            var colErisimTuru = new DataGridViewComboBoxColumn
+            dgvDiskler.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colErisimTuru",
                 HeaderText = "Erişim Türü",
                 DataPropertyName = "ErisimTuru",
-                ValueType = typeof(DiskErisimTuru),
-                DataSource = Enum.GetValues(typeof(DiskErisimTuru))
-            };
-
-            // İşlem butonu için
-            var colIslem = new DataGridViewButtonColumn
-            {
-                Name = "colIslem",
-                HeaderText = "İşlem",
-                Text = "Uygula",
-                UseColumnTextForButtonValue = true
-            };
-
-            dgvDiskler.Columns.AddRange(new DataGridViewColumn[] {
-                colSeriNo, colModel, colBoyut, colTarih, colHash, colErisimTuru, colIslem
+                Width = 100,
+                ReadOnly = true
             });
 
-            // DataGridView olaylarını ekle
+            // Tam Erişim Butonu
+            var tamErisimColumn = new DataGridViewButtonColumn
+            {
+                Name = "colTamErisim",
+                HeaderText = "Tam Erişim",
+                Text = "Tam",
+                UseColumnTextForButtonValue = true,
+                Width = 60,
+                FlatStyle = FlatStyle.Flat
+            };
+            dgvDiskler.Columns.Add(tamErisimColumn);
+
+            // Salt Okunur Butonu
+            var saltOkunurColumn = new DataGridViewButtonColumn
+            {
+                Name = "colSaltOkunur",
+                HeaderText = "Salt Okunur",
+                Text = "Salt",
+                UseColumnTextForButtonValue = true,
+                Width = 60,
+                FlatStyle = FlatStyle.Flat
+            };
+            dgvDiskler.Columns.Add(saltOkunurColumn);
+
+            // Erişim Yok Butonu
+            var erisimYokColumn = new DataGridViewButtonColumn
+            {
+                Name = "colErisimYok",
+                HeaderText = "Erişim Yok",
+                Text = "Engelle",
+                UseColumnTextForButtonValue = true,
+                Width = 60,
+                FlatStyle = FlatStyle.Flat
+            };
+            dgvDiskler.Columns.Add(erisimYokColumn);
+
+            // Olayları ekle
             dgvDiskler.CellContentClick += DgvDiskler_CellContentClick;
-            dgvDiskler.CellValueChanged += DgvDiskler_CellValueChanged_1;
+
+            // Görünüm ayarları
+            dgvDiskler.EnableHeadersVisualStyles = false;
+            dgvDiskler.ColumnHeadersDefaultCellStyle.BackColor = Color.LightBlue;
+            dgvDiskler.ColumnHeadersDefaultCellStyle.ForeColor = Color.Black;
+            dgvDiskler.ColumnHeadersDefaultCellStyle.Font = new Font(dgvDiskler.Font, FontStyle.Bold);
+            dgvDiskler.RowHeadersVisible = false;
+            dgvDiskler.AllowUserToAddRows = false;
+
+            // Satırlara alternatif renk verme
+            dgvDiskler.AlternatingRowsDefaultCellStyle.BackColor = Color.AliceBlue;
+            dgvDiskler.DefaultCellStyle.SelectionBackColor = Color.LightSteelBlue;
+            dgvDiskler.DefaultCellStyle.SelectionForeColor = Color.Black;
         }
 
-        private void DgvDiskler_CellValueChanged_1(object sender, DataGridViewCellEventArgs e)
+        private void RefreshDataGridView()
         {
-            // Erişim türü değiştiğinde
-            if (e.ColumnIndex == dgvDiskler.Columns["colErisimTuru"].Index && e.RowIndex >= 0)
+            try
             {
-                // UI güncellemesi için değişimi kaydet
-                var diskData = dgvDiskler.Rows[e.RowIndex].DataBoundItem;
-                // Not: Burada erişim türü property'sini almak için dynamic kullanılıyor
-                DiskErisimTuru secilenTur = (DiskErisimTuru)dgvDiskler.Rows[e.RowIndex].Cells["colErisimTuru"].Value;
+                // Grid'i temizle
+                dgvDiskler.Rows.Clear();
 
-                // İlgili diski bul ve erişim türünü güncelle
-                string diskModel = dgvDiskler.Rows[e.RowIndex].Cells["colModel"].Value.ToString();
-                Disk disk = diskler.FirstOrDefault(d => d.DiskModel == diskModel);
-                if (disk != null)
+                // Her disk için yeni bir satır oluştur
+                foreach (var disk in diskler)
                 {
-                    disk.ErisimTuru = secilenTur;
+                    int rowIndex = dgvDiskler.Rows.Add();
+                    DataGridViewRow row = dgvDiskler.Rows[rowIndex];
+
+                    // Temel bilgileri doldur
+                    row.Cells["colSeriNo"].Value = disk.DiskSeriNo;
+                    row.Cells["colModel"].Value = disk.DiskModel;
+                    row.Cells["colBoyut"].Value = (disk.DiskBoyut / (1024 * 1024)).ToString("N0");
+                    row.Cells["colTarih"].Value = disk.DiskTarih;
+                    row.Cells["colHash"].Value = disk.Hash;
+                    row.Cells["colErisimTuru"].Value = disk.ErisimTuru.ToString();
+
+                    // Aktif erişim türüne göre buton renklerini ayarla
+                    StyleButtonColumns(row, disk.ErisimTuru);
                 }
 
-                // İlgili diski ve yeni durumu logla
-                LogDiskIslem("Erişim Değişti", diskModel, secilenTur.ToString());
+                // Son satırı seç
+                if (dgvDiskler.Rows.Count > 0)
+                {
+                    dgvDiskler.FirstDisplayedScrollingRowIndex = Math.Max(0, dgvDiskler.Rows.Count - 1);
+                    dgvDiskler.Rows[dgvDiskler.Rows.Count - 1].Selected = true;
+                }
+
+                // Status bar'ı güncelle
+                lblDiskSayisi.Text = $"Toplam {diskler.Count} disk bağlı";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Disk listesi yenilenirken hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Buton hücrelerinin görünümünü erişim türüne göre değiştir
+        private void StyleButtonColumns(DataGridViewRow row, DiskErisimTuru erisimTuru)
+        {
+            // Tüm butonları normal stilde başlat
+            if (row.Cells["colTamErisim"] is DataGridViewButtonCell tamErisimCell)
+            {
+                tamErisimCell.Style.BackColor = Color.LightGray;
+                tamErisimCell.Style.ForeColor = Color.Black;
+            }
+
+            if (row.Cells["colSaltOkunur"] is DataGridViewButtonCell saltOkunurCell)
+            {
+                saltOkunurCell.Style.BackColor = Color.LightGray;
+                saltOkunurCell.Style.ForeColor = Color.Black;
+            }
+
+            if (row.Cells["colErisimYok"] is DataGridViewButtonCell erisimYokCell)
+            {
+                erisimYokCell.Style.BackColor = Color.LightGray;
+                erisimYokCell.Style.ForeColor = Color.Black;
+            }
+
+            // Aktif olan erişim türünü vurgula
+            switch (erisimTuru)
+            {
+                case DiskErisimTuru.TamErisim:
+                    if (row.Cells["colTamErisim"] is DataGridViewButtonCell activeTamCell)
+                    {
+                        activeTamCell.Style.BackColor = Color.Green;
+                        activeTamCell.Style.ForeColor = Color.White;
+                    }
+                    break;
+                case DiskErisimTuru.SaltOkunur:
+                    if (row.Cells["colSaltOkunur"] is DataGridViewButtonCell activeSaltCell)
+                    {
+                        activeSaltCell.Style.BackColor = Color.Orange;
+                        activeSaltCell.Style.ForeColor = Color.White;
+                    }
+                    break;
+                case DiskErisimTuru.ErisimYok:
+                    if (row.Cells["colErisimYok"] is DataGridViewButtonCell activeErisimYokCell)
+                    {
+                        activeErisimYokCell.Style.BackColor = Color.Red;
+                        activeErisimYokCell.Style.ForeColor = Color.White;
+                    }
+                    break;
             }
         }
 
         private void DgvDiskler_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Uygula butonuna tıklandığında
-            if (e.ColumnIndex == dgvDiskler.Columns["colIslem"].Index && e.RowIndex >= 0)
+            // Erişim butonu tıklandığında
+            if (e.RowIndex >= 0)
             {
-                DiskErisimTuru secilenTur = (DiskErisimTuru)dgvDiskler.Rows[e.RowIndex].Cells["colErisimTuru"].Value;
-                string diskYolu = dgvDiskler.Rows[e.RowIndex].Cells["colModel"].Value.ToString();
+                DiskErisimTuru erisimTuru = DiskErisimTuru.TamErisim; // Varsayılan
+                bool isErisimButonu = false;
 
-                try
+                if (e.ColumnIndex == dgvDiskler.Columns["colTamErisim"].Index)
                 {
-                    UygulaErisimTuru(diskYolu, secilenTur);
-
-                    // İşlemi logla
-                    LogDiskIslem("Erişim Uygulandı", diskYolu, secilenTur.ToString());
-
-                    // Kullanıcıya bilgi ver
-                    ShowNotification($"{diskYolu} için {secilenTur} erişimi uygulandı", Color.Blue);
+                    erisimTuru = DiskErisimTuru.TamErisim;
+                    isErisimButonu = true;
                 }
-                catch (Exception ex)
+                else if (e.ColumnIndex == dgvDiskler.Columns["colSaltOkunur"].Index)
                 {
-                    MessageBox.Show($"Erişim türü uygulanırken hata: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    erisimTuru = DiskErisimTuru.SaltOkunur;
+                    isErisimButonu = true;
                 }
+                else if (e.ColumnIndex == dgvDiskler.Columns["colErisimYok"].Index)
+                {
+                    erisimTuru = DiskErisimTuru.ErisimYok;
+                    isErisimButonu = true;
+                }
+
+                if (isErisimButonu)
+                {
+                    try
+                    {
+                        // Disk bilgilerini al
+                        string diskSeriNo = dgvDiskler.Rows[e.RowIndex].Cells["colSeriNo"].Value.ToString();
+                        string diskModel = dgvDiskler.Rows[e.RowIndex].Cells["colModel"].Value.ToString();
+
+                        // İlgili diski bul
+                        Disk disk = diskler.FirstOrDefault(d => d.DiskSeriNo == diskSeriNo);
+                        if (disk == null)
+                        {
+                            MessageBox.Show("Belirtilen disk bulunamadı!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        // Eğer aynı erişim türüne tekrar tıklandıysa işlem yapma
+                        if (disk.ErisimTuru == erisimTuru)
+                        {
+                            ShowNotification($"{diskModel} zaten {erisimTuru} modunda", Color.Blue);
+                            return;
+                        }
+
+                        // Erişim türünü değiştir
+                        disk.ErisimTuru = erisimTuru;
+
+                        // Erişim türünü uygula
+                        UygulaErisimTuru(disk.DiskModel, erisimTuru);
+
+                        // Buton stilini güncelle
+                        StyleButtonColumns(dgvDiskler.Rows[e.RowIndex], erisimTuru);
+
+                        // Erişim türü hücresini güncelle
+                        dgvDiskler.Rows[e.RowIndex].Cells["colErisimTuru"].Value = erisimTuru.ToString();
+
+                        // İşlemi logla
+                        LogDiskIslem("Erişim Değiştirildi", disk.DiskModel, erisimTuru.ToString());
+
+                        // Kullanıcıya bilgi ver
+                        ShowNotification($"{diskModel} için {erisimTuru} erişimi uygulandı", GetStatusColorForAccessType(erisimTuru));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Erişim türü uygulanırken hata: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        // Erişim türüne göre renk döndür
+        private Color GetStatusColorForAccessType(DiskErisimTuru erisimTuru)
+        {
+            switch (erisimTuru)
+            {
+                case DiskErisimTuru.TamErisim:
+                    return Color.Green;
+                case DiskErisimTuru.SaltOkunur:
+                    return Color.Orange;
+                case DiskErisimTuru.ErisimYok:
+                    return Color.Red;
+                default:
+                    return Color.Blue;
             }
         }
 
         private void UygulaErisimTuru(string diskYolu, DiskErisimTuru erisimTuru)
         {
-            if (string.IsNullOrEmpty(diskYolu) || !Directory.Exists(diskYolu))
+            if (string.IsNullOrEmpty(diskYolu))
             {
-                throw new DirectoryNotFoundException($"Disk dizini bulunamadı: {diskYolu}");
+                throw new ArgumentException("Disk yolu boş olamaz!");
             }
 
-            // İlgili drivenın info'sunu al
-            DriveInfo driveInfo = new DriveInfo(diskYolu);
-
-            switch (erisimTuru)
+            try
             {
-                case DiskErisimTuru.TamErisim:
-                    SetDiskPermission(diskYolu, true, true);
-                    break;
+                // DiskPermissionManager sınıfını kullanarak gerçek disk izinlerini uygula
+                bool basarili = DiskYonetim.AppClass.DiskPermissionManager.UygulaErisimTuru(diskYolu, erisimTuru);
 
-                case DiskErisimTuru.SaltOkunur:
-                    SetDiskPermission(diskYolu, true, false);
-                    break;
-
-                case DiskErisimTuru.ErisimYok:
-                    SetDiskPermission(diskYolu, false, false);
-                    break;
+                if (!basarili)
+                {
+                    // İzin değişikliği başarısız oldu, kullanıcıya bilgi ver
+                    throw new Exception($"{diskYolu} için {erisimTuru} erişimi uygulanamadı");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda kullanıcıya bilgi ver
+                throw new Exception($"Disk izinleri ayarlanırken hata: {ex.Message}");
             }
         }
 
@@ -218,11 +388,6 @@ namespace DiskManagerTool
                 // Bu metod Windows API veya uygun bir kütüphane kullanılarak genişletilebilir
                 // Şu anki implementasyon örnek amaçlıdır
 
-                DriveInfo driveInfo = new DriveInfo(diskYolu);
-
-                // Gerçek bir uygulamada, burada Windows API çağrıları yapılmalı
-                // veya icacls gibi komut satırı araçları kullanılmalı
-
                 // Örnek olarak, sadece bildirim gösteriyoruz
                 string mesaj = $"{diskYolu} için ";
                 if (okuma && yazma)
@@ -232,34 +397,11 @@ namespace DiskManagerTool
                 else
                     mesaj += "tüm erişimler engellendi.";
 
-                // Gerçek uygulamada aşağıdaki kodlar gerekecek
-                // Windows komut satırı kullanarak izinleri değiştirme örneği:
-                /*
-                string arguments = "";
-                if (okuma && yazma)
-                    arguments = $"/grant Everyone:(OI)(CI)F {diskYolu}";
-                else if (okuma && !yazma)
-                    arguments = $"/grant Everyone:(OI)(CI)R {diskYolu}";
-                else
-                    arguments = $"/deny Everyone:(OI)(CI)F {diskYolu}";
-                
-                ProcessStartInfo startInfo = new ProcessStartInfo
-                {
-                    FileName = "icacls",
-                    Arguments = arguments,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                };
-                
-                using (Process process = Process.Start(startInfo))
-                {
-                    process.WaitForExit();
-                }
-                */
+                // Gerçek uygulamada Windows API çağrıları yapılmalı
+                Console.WriteLine(mesaj);
 
-                MessageBox.Show(mesaj, "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Bildirim göster ama MessageBox kullanma (akışı bozmasın)
+                // MessageBox.Show(mesaj, "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -269,193 +411,168 @@ namespace DiskManagerTool
 
         private void LoadInitialDisks()
         {
-            // Form henüz yüklenmemiş olabilir, bu yüzden kontrolü ekleyin
-            if (this.IsHandleCreated)
+            try
             {
-                this.Invoke((MethodInvoker)delegate
+                // Form henüz yüklenmemiş olabilir, bu yüzden kontrolü ekleyin
+                if (this.IsHandleCreated)
                 {
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        diskler = DiskHash.BagliDiskler.ToList();
+
+                        // Mevcut disklere varsayılan erişim türü ata
+                        foreach (var disk in diskler)
+                        {
+                            disk.ErisimTuru = DiskErisimTuru.TamErisim;
+                        }
+
+                        RefreshDataGridView();
+                    });
+                }
+                else
+                {
+                    // Handle henüz oluşturulmadı, doğrudan atama yap
                     diskler = DiskHash.BagliDiskler.ToList();
 
                     // Mevcut disklere varsayılan erişim türü ata
                     foreach (var disk in diskler)
                     {
-                        // Disk sınıfına ErisimTuru özelliği eklenmiş olmalı
-                        SetDiskAccessProperty(disk, DiskErisimTuru.TamErisim);
+                        disk.ErisimTuru = DiskErisimTuru.TamErisim;
                     }
 
-                    RefreshDataGridView();
-                });
-            }
-            else
-            {
-                // Handle henüz oluşturulmadı, doğrudan atama yap
-                diskler = DiskHash.BagliDiskler.ToList();
-
-                // Mevcut disklere varsayılan erişim türü ata
-                foreach (var disk in diskler)
-                {
-                    SetDiskAccessProperty(disk, DiskErisimTuru.TamErisim);
+                    // Form yüklendiğinde grid'i güncelle
+                    this.Load += (s, e) =>
+                    {
+                        RefreshDataGridView();
+                    };
                 }
-
-                // Form yüklendiğinde grid'i güncelle
-                this.Load += (s, e) =>
-                {
-                    RefreshDataGridView();
-                };
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Başlangıç diskleri yüklenirken hata: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void DiskHash_DiskTakildi(object sender, DiskEventArgs e)
         {
-            // Form henüz yüklenmemiş olabilir, bu yüzden kontrolü ekleyin
-            if (this.IsHandleCreated)
+            try
             {
-                // UI thread'ine geri dön
-                this.Invoke((MethodInvoker)delegate
+                // Form henüz yüklenmemiş olabilir, bu yüzden kontrolü ekleyin
+                if (this.IsHandleCreated)
                 {
-                    // Yeni disk için varsayılan erişim türü
-                    SetDiskAccessProperty(e.Disk, DiskErisimTuru.TamErisim);
+                    // UI thread'ine geri dön
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        // Yeni disk için varsayılan erişim türü
+                        e.Disk.ErisimTuru = DiskErisimTuru.TamErisim;
 
+                        diskler.Add(e.Disk);
+                        RefreshDataGridView();
+
+                        // Log kaydı oluştur
+                        LogDiskIslem("Disk Takıldı", e.Disk.DiskModel, "TamErisim");
+
+                        // Kullanıcıya bilgi ver
+                        ShowNotification($"Yeni disk takıldı: {e.Disk.DiskSeriNo} ({e.Disk.DiskModel})", Color.Green);
+                    });
+                }
+                else
+                {
+                    // Handle henüz oluşturulmadı, doğrudan atama yap
+                    e.Disk.ErisimTuru = DiskErisimTuru.TamErisim;
                     diskler.Add(e.Disk);
-                    RefreshDataGridView();
 
-                    // Log kaydı oluştur
+                    // Log kaydı oluştur (form yüklenmese bile)
                     LogDiskIslem("Disk Takıldı", e.Disk.DiskModel, "TamErisim");
 
-                    // Kullanıcıya bilgi ver
-                    ShowNotification($"Yeni disk takıldı: {e.Disk.DiskSeriNo} ({e.Disk.DiskModel})", Color.Green);
-                });
+                    // Form yüklendiğinde bildirim göster
+                    this.Load += (s, ev) =>
+                    {
+                        ShowNotification($"Yeni disk takıldı: {e.Disk.DiskSeriNo} ({e.Disk.DiskModel})", Color.Green);
+                    };
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // Handle henüz oluşturulmadı, doğrudan atama yap
-                SetDiskAccessProperty(e.Disk, DiskErisimTuru.TamErisim);
-                diskler.Add(e.Disk);
-
-                // Log kaydı oluştur (form yüklenmese bile)
-                LogDiskIslem("Disk Takıldı", e.Disk.DiskModel, "TamErisim");
-
-                // Form yüklendiğinde bildirim göster
-                this.Load += (s, ev) =>
-                {
-                    ShowNotification($"Yeni disk takıldı: {e.Disk.DiskSeriNo} ({e.Disk.DiskModel})", Color.Green);
-                };
+                Console.WriteLine($"Disk takılma olayında hata: {ex.Message}");
             }
         }
 
         private void DiskHash_DiskCikarildi(object sender, DiskEventArgs e)
         {
-            // Form henüz yüklenmemiş olabilir, bu yüzden kontrolü ekleyin
-            if (this.IsHandleCreated)
+            try
             {
-                // UI thread'ine geri dön
-                this.Invoke((MethodInvoker)delegate
+                // Form henüz yüklenmemiş olabilir, bu yüzden kontrolü ekleyin
+                if (this.IsHandleCreated)
                 {
-                    // Disk çıkarılmadan önce logla
-                    string erisimTuru = GetDiskAccessProperty(e.Disk).ToString();
+                    // UI thread'ine geri dön
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        // Disk çıkarılmadan önce logla
+                        string erisimTuru = e.Disk.ErisimTuru.ToString();
+                        LogDiskIslem("Disk Çıkarıldı", e.Disk.DiskModel, erisimTuru);
+
+                        diskler.Remove(e.Disk);
+                        RefreshDataGridView();
+
+                        // Kullanıcıya bilgi ver
+                        ShowNotification($"Disk çıkarıldı: {e.Disk.DiskSeriNo} ({e.Disk.DiskModel})", Color.Red);
+                    });
+                }
+                else
+                {
+                    // Handle henüz oluşturulmadı
+                    // Disk çıkarılmadan önce logla (form yüklenmese bile)
+                    string erisimTuru = e.Disk.ErisimTuru.ToString();
                     LogDiskIslem("Disk Çıkarıldı", e.Disk.DiskModel, erisimTuru);
 
                     diskler.Remove(e.Disk);
-                    RefreshDataGridView();
 
-                    // Kullanıcıya bilgi ver
-                    ShowNotification($"Disk çıkarıldı: {e.Disk.DiskSeriNo} ({e.Disk.DiskModel})", Color.Red);
-                });
+                    // Form yüklendiğinde bildirim göster
+                    this.Load += (s, ev) =>
+                    {
+                        ShowNotification($"Disk çıkarıldı: {e.Disk.DiskSeriNo} ({e.Disk.DiskModel})", Color.Red);
+                    };
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // Handle henüz oluşturulmadı
-                // Disk çıkarılmadan önce logla (form yüklenmese bile)
-                string erisimTuru = GetDiskAccessProperty(e.Disk).ToString();
-                LogDiskIslem("Disk Çıkarıldı", e.Disk.DiskModel, erisimTuru);
-
-                diskler.Remove(e.Disk);
-
-                // Form yüklendiğinde bildirim göster
-                this.Load += (s, ev) =>
-                {
-                    ShowNotification($"Disk çıkarıldı: {e.Disk.DiskSeriNo} ({e.Disk.DiskModel})", Color.Red);
-                };
+                Console.WriteLine($"Disk çıkarılma olayında hata: {ex.Message}");
             }
         }
-
-        private void SetDiskAccessProperty(Disk disk, DiskErisimTuru erisimTuru)
-        {
-            // Disk sınıfına ErisimTuru property'si eklendiği için doğrudan atama yapabiliriz
-            disk.ErisimTuru = (EntitesLayer.Entity.DiskErisimTuru)erisimTuru;
-        }
-
-        // Disk nesnesinden erişim türünü almak için yardımcı metod
-        private DiskErisimTuru GetDiskAccessProperty(Disk disk)
-        {
-            // Disk sınıfında ErisimTuru property'si var, direkt kullanabiliriz
-            return (DiskErisimTuru)disk.ErisimTuru;
-        }
-
-        private void RefreshDataGridView()
-        {
-            // Diskleri MB formatında gösterecek şekilde dönüştür
-            var disklerFormatli = diskler.Select(d =>
-            {
-                // Erişim türü özelliğini almaya çalış
-                DiskErisimTuru erisimTuru = GetDiskAccessProperty(d);
-
-                return new
-                {
-                    d.DiskSeriNo,
-                    d.DiskModel,
-                    DiskBoyutMB = (d.DiskBoyut / (1024 * 1024)).ToString("N0"),
-                    d.DiskTarih,
-                    d.Hash,
-                    ErisimTuru = erisimTuru
-                };
-            }).ToList();
-
-            // DataSource'u güncelle
-            dgvDiskler.DataSource = null;
-            dgvDiskler.DataSource = disklerFormatli;
-
-            // En son satırı seç
-            if (dgvDiskler.Rows.Count > 0)
-            {
-                dgvDiskler.FirstDisplayedScrollingRowIndex = dgvDiskler.Rows.Count - 1;
-                dgvDiskler.Rows[dgvDiskler.Rows.Count - 1].Selected = true;
-            }
-
-            // Status bar'ı güncelle
-            lblDiskSayisi.Text = $"Toplam {diskler.Count} disk bağlı";
-        }
-
-
-
-
 
         private void ShowNotification(string message, Color color)
         {
-            // Form henüz yüklenmemiş olabilir, bu yüzden kontrolü ekleyin
-            if (this.IsHandleCreated)
+            try
             {
-                if (this.InvokeRequired) // Formun kendisinin InvokeRequired özelliğini kullan
+                // Form henüz yüklenmemiş olabilir, bu yüzden kontrolü ekleyin
+                if (this.IsHandleCreated)
                 {
-                    this.Invoke((MethodInvoker)delegate
+                    if (this.InvokeRequired) // Formun kendisinin InvokeRequired özelliğini kullan
+                    {
+                        this.Invoke((MethodInvoker)delegate
+                        {
+                            lblNotification.Text = message;
+                            lblNotification.ForeColor = color;
+
+                            // Timer'ı başlat
+                            timerNotification.Start();
+                        });
+                    }
+                    else
                     {
                         lblNotification.Text = message;
                         lblNotification.ForeColor = color;
 
                         // Timer'ı başlat
                         timerNotification.Start();
-                    });
-                }
-                else
-                {
-                    lblNotification.Text = message;
-                    lblNotification.ForeColor = color;
-
-                    // Timer'ı başlat
-                    timerNotification.Start();
+                    }
                 }
             }
-            // Handle henüz oluşturulmadıysa, bildirimi gösterme
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Bildirim gösterirken hata: {ex.Message}");
+            }
         }
 
         private void timerNotification_Tick(object sender, EventArgs e)
@@ -523,7 +640,7 @@ namespace DiskManagerTool
                         {
                             // Boyutu MB'a çevir ve formatlı yazdır
                             string boyutMB = (disk.DiskBoyut / (1024.0 * 1024.0)).ToString("N0");
-                            string erisimTuru = GetDiskAccessProperty(disk).ToString();
+                            string erisimTuru = disk.ErisimTuru.ToString();
 
                             sb.AppendLine($"{disk.DiskSeriNo},{disk.DiskModel},{boyutMB},{disk.DiskTarih.ToString("dd.MM.yyyy HH:mm:ss")},{disk.Hash},{erisimTuru}");
                         }
@@ -560,7 +677,5 @@ namespace DiskManagerTool
                 MessageBox.Show($"Log dosyası açılırken hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        
     }
 }

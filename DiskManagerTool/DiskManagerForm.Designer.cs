@@ -55,7 +55,8 @@
             dgvDiskler.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvDiskler.Size = new Size(905, 447);
             dgvDiskler.TabIndex = 0;
-            dgvDiskler.CellValueChanged += DgvDiskler_CellValueChanged_1;
+            dgvDiskler.CellContentClick += DgvDiskler_CellContentClick;
+            
             // 
             // statusStrip1
             // 

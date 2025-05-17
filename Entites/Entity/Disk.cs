@@ -15,6 +15,6 @@ namespace EntitesLayer.Entity
         public long DiskBoyut { get; set; }
         public DateTime DiskTarih { get; set; }
         public string Hash { get; set; }
-        public DiskErisimTuru ErisimTuru { get; set; } = DiskErisimTuru.TamErisim;
+        public DiskErisimTuru ErisimTuru { get; set; } 
     }
 }
